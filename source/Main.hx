@@ -26,6 +26,11 @@ import sys.io.File;
 import sys.io.Process;
 #end
 
+#if android
+import android.content.Context;
+import android.os.Build;
+#end
+
 using StringTools;
 
 class Main extends Sprite
@@ -53,7 +58,15 @@ class Main extends Sprite
 	{
 		super();
 
-    SUtil.gameCrashCheck();
+		#if android
+		if (VERSION.SDK_INT > 30)
+			Sys.setCwd(Path.addTrailingSlash(Context.getObbDir()));
+		else
+			Sys.setCwd(Path.addTrailingSlash(Context.getExternalFilesDir()));
+		#elseif ios
+		Sys.setCwd(System.documentsDirectory);
+		#end
+		
 		if (stage != null)
 		{
 			init();
@@ -87,8 +100,6 @@ class Main extends Sprite
 			game.width = Math.ceil(stageWidth / game.zoom);
 			game.height = Math.ceil(stageHeight / game.zoom);
 		}
-	
-			SUtil.doTheCheck();
 	
 		ClientPrefs.loadDefaultKeys();
 		addChild(new FlxGame(game.width, game.height, game.initialState, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
